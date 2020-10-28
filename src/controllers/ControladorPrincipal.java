@@ -4,8 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import co.edu.uniquindio.redes.model.Network;
-import co.edu.uniquindio.redes.model.NetworkTable;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,12 +16,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.util.Callback;
 import models.OperacionesRed;
+import models.Red;
 import observable.TablaObservable;
 
 public class ControladorPrincipal implements Initializable{
 	
 	private OperacionesRed operaciones = new OperacionesRed();
+	private ObservableList<TablaObservable> listaSubredes = FXCollections.observableArrayList();
 	
     @FXML
     private TextField txtDireccionIP,txtMascara;
@@ -44,13 +49,13 @@ public class ControladorPrincipal implements Initializable{
     private TextField txtDireccionSN, txtMascaraSN;
     
     @FXML
-    private TableView<?> tvSubRedes;
+    private TableView<TablaObservable> tvSubRedes;
 
     @FXML
-    private TableColumn<?, ?> tcNumero, tcIPSbubred, tcBroadcast, tcRango;
+    private TableColumn<TablaObservable, String> tcNumero, tcIPSbubred, tcBroadcast, tcRango;
 
     @FXML
-    private ComboBox<?> cmbCantidad;
+    private ComboBox<Integer> cmbCantidad;
 
     @FXML
     private Label lblDireccionRedSN, lblDireccionBroadcastSN, lblCantidadHostSN;
@@ -201,6 +206,88 @@ public class ControladorPrincipal implements Initializable{
 	}
 	
 	/**
+	 * Metodo que verifica si los cambios de valor en una entrada de informacion corresponde a una IP Y/O mascara valida.
+	 * Si son direcciones de red y mascara valida, ejecutara los calculos de subnetting.
+	 */
+	@FXML
+	public void operarSubredes(ActionEvent e) {
+		if(validar(""+txtDireccionSN.getText().toString(), ""+txtMascaraSN.getText().toString()) &&
+				cmbCantidad.getSelectionModel().getSelectedIndex() > 0 ) {
+			String [] tmp = operAux(txtDireccionSN.getText().toString(), txtMascaraSN.getText().toString(), Integer.parseInt(""+cmbCantidad.getSelectionModel().getSelectedIndex()));
+			lblDireccionRedSN.setText(tmp[0]);
+			lblDireccionBroadcastSN.setText(tmp[1]);
+			lblCantidadHostSN.setText(tmp[2]);
+			ArrayList<TablaObservable> subnets = hacerOperacionesSubred(""+txtDireccionSN.getText().toString(),
+					""+txtMascaraSN.getText().toString(), ""+cmbCantidad.getSelectionModel().getSelectedIndex());
+			listaSubredes.clear();
+			if (!subnets.isEmpty()){
+				for(TablaObservable n: subnets)
+					listaSubredes.add(n);
+				llenarTabla();
+				}
+		}
+	}
+	
+	/**
+	 * Metodo que dados los valores de Red de un conjunto de subredes los mostrara en una tabla
+	 */
+	private void llenarTabla() {
+		tvSubRedes.refresh();
+		tcNumero.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TablaObservable,String>, ObservableValue<String>>(){
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<TablaObservable, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getIndice();
+			}	
+		});
+		tcIPSbubred.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TablaObservable, String>, ObservableValue<String>>() {			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<TablaObservable, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getSubred();
+			}
+		});
+		tcBroadcast.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TablaObservable, String>, ObservableValue<String>>() {			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<TablaObservable, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getBroadcast();
+			}
+		});
+		tcRango.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TablaObservable, String>, ObservableValue<String>>() {			
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<TablaObservable, String> param) {
+				// TODO Auto-generated method stub
+				return param.getValue().getRango();
+			}
+		});			
+		tvSubRedes.setItems(listaSubredes);
+		tvSubRedes.setTableMenuButtonVisible(false);
+		tvSubRedes.setPlaceholder(new Label("Table is void"));
+	}
+	
+	public String[] operAux(String ip, String mask,int bit) {
+		String[] text = ip.split("\\.");
+		String[] values = new String[3];
+		int[] address = new int[4];
+		for( int i = 0; i < 3; i++ ) 
+			address[i] = Integer.parseInt(text[i]);	
+		int subnetmask = Integer.parseInt(mask);
+		operaciones.setHost(address);
+		operaciones.setSubred(subnetmask);
+		operaciones.configNetwork();
+		operaciones.calcularDireccionRed();	
+		int tempnet[] = operaciones.getRed().getRed();
+		values[0] = tempnet[0]+"."+tempnet[1]+"."+tempnet[2]+"."+tempnet[3];
+		operaciones.calcularBroadcast();
+		int tempbroadcast[] = operaciones.getRed().getBroadcast();
+		values[1] = tempbroadcast[0]+"."+tempbroadcast[1]+"."+tempbroadcast[2]+"."+tempbroadcast[3];
+		values[2] = "" + Math.pow(2.0, (8-bit));
+
+		return values;
+	}
+	
+	/**
 	 * Metodo que realiza los calculos de Subred asociados a una Red basado en una direccion IP de la misma (host o direccion de red)
 	 * y la mascara de subred en formato simplificado.
 	 * @param ip Direccion de la IP perteneciente a esa Red.
@@ -225,30 +312,71 @@ public class ControladorPrincipal implements Initializable{
 		operaciones.configNetwork();
 		operaciones.calcularDireccionRed();
 		operaciones.calcularBroadcast();
-		//operaciones.dosubnetting
-		ArrayList<Network> aux = operations.getSubnets();
-		for( Network n: aux ) {
+		operaciones.hacerSubredes(bit);
+		ArrayList<Red> aux = operaciones.getSubredes();
+		for( Red n: aux ) {
 			String index = subnets.size()+"";
 			String network = "";
 			String broadcast = "";
 			for( int j = 0; j < 3; j++ ) {
-				network += n.getNetwork()[j] + ".";
+				network += n.getRed()[j] + ".";
 				broadcast += n.getBroadcast()[j] + ".";
 			}
-			int octectnetwork = n.getNetwork()[3]+1;
+			int octectnetwork = n.getRed()[3]+1;
 			int octectbroadcast = n.getBroadcast()[3]-1;
 			String range = network + octectnetwork + " - " + broadcast + octectbroadcast;
-			network += n.getNetwork()[3];
+			network += n.getRed()[3];
 			broadcast += n.getBroadcast()[3];
-			String category = n.getCategory();
-			subnets.add(new NetworkTable(index, network, broadcast, range, category));
+			subnets.add(new TablaObservable(index, network, broadcast, range));
 		}
 		return subnets;
+	}
+	
+	/**
+	 * Metodo que establece los valores del combobox de seleccion de numero de subredes.
+	 * @return Lista que contiene el numero de subredes.
+	 */
+	@FXML
+	public ObservableList<Integer> llenarCombobox(){
+		ObservableList<Integer> subnets = FXCollections.observableArrayList();
+		if( txtMascaraSN.getText().toString().length() != 0 ) {
+			try {
+				int nets = Integer.parseInt(txtMascaraSN.getText().toString());
+				if( nets == 1)
+					subnets.add(0);
+				else if( nets > 1 && nets < 30) {
+					for( int j = 0; j < ( 31- nets); j++ )
+						subnets.add((int) Math.pow(2, j));
+				}
+			}catch(Exception exception) {
+				System.out.println("No llenó combobox");
+			}
+		}
+		else
+			subnets.add(0);
+		return subnets;
+	}
+	
+	@FXML
+	public void controlarCamposSubredes() {
+		txtMascaraSN.textProperty().addListener((observable, oldValue, newValue) -> {
+			cmbCantidad.setItems(llenarCombobox());
+			cmbCantidad.getSelectionModel().select(0);
+		});
+		txtDireccionSN.textProperty().addListener((observable, oldValue, newValue) -> {
+			cmbCantidad.setItems(llenarCombobox());
+			cmbCantidad.getSelectionModel().select(0);
+		});
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
-		
+		ObservableList<Integer> subredes = FXCollections.observableArrayList();
+		subredes.add(0);
+		cmbCantidad.setItems(subredes);
+		cmbCantidad.getSelectionModel().select(0);
+		cmbCantidad.setVisibleRowCount(5);
+		controlarCamposSubredes();
 	}
 }

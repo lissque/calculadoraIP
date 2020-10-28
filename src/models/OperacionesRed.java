@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class OperacionesRed {
 	private Red red;
 	private int[] config, host;
-	private int subred;
+	private int mask;
 	private ArrayList<Red> subredes;
 	
 	public OperacionesRed() {
@@ -77,7 +77,7 @@ public class OperacionesRed {
 	 * Metodo que realiza un conteo de los Hosts que estan o podrian estar en la Red.
 	 */
 	public int contarHosts() {
-		return (int) Math.pow(2, 32-getSubred())-2;	
+		return (int) Math.pow(2, 32-getSubred())-2;
 	}
 	
 	/**
@@ -99,6 +99,52 @@ public class OperacionesRed {
 		ans += begin + " - " + end;
 		System.out.println(ans);
 		return ans;
+	}
+	
+	/**
+	 * Metodo que calculas las direcciones de subred de una red, de acuerdo a la cantidad de bits de la subnet.
+	 * @param bits Porcion del HostID que representa el numero de subredes en formato binario.
+	 */
+	public void hacerSubredes(int bits) {
+		if( bits + getSubred() > 32)
+			return;	
+	
+		subredes.clear();
+		
+		int aux[] = red.getRed();
+		setSubred(getSubred()+bits);
+		configNetwork();
+		
+		long total = 0;	
+		int subs = (int) Math.pow(2, bits);	
+		total += (long)aux[0]*16777216 + (long)aux[1]*65536 + (long)aux[2]*256 + (long)aux[3];
+		long delta =  (int) Math.pow(2,(32-(getSubred())));
+		int[] temp = red.getRed();
+		for(int i = 0; i < subs; i++) 
+			decodeAddress((total+(delta*i)), delta);	
+		red.setRed(temp);
+	}
+	
+	/**
+	 * Metodo que decodifica la direccion de una IP de acuerdo al Checksum de la IP 
+	 * @param total Chceksum de la IP 
+	 * @param delta Variacion entre el inicio de una subred y otra.
+	 */
+	public void decodeAddress(long total, long delta) {
+		int auxNetwork[] = new int[4];
+		int auxBroadcast[] = new int[4];
+		long next = total + delta - 1;
+		for( int k = 0; k < 4; k++ ) {
+			int octect = (int) Math.pow(256,(3-k));
+			int ans = (int) (total/octect);
+			total = ( total > 0 )? total%octect : 0;
+			auxNetwork[k] = ans;
+			ans =  (int) (next/octect);
+			next = ( next > 0 )? next%octect : 0;
+			auxBroadcast[k] = ans;
+		}
+		red.setRed(auxNetwork);
+		subredes.add( new Red(auxNetwork, auxBroadcast, config));
 	}
 
 	public Red getRed() {
@@ -135,11 +181,11 @@ public class OperacionesRed {
 	}
 
 	public int getSubred() {
-		return subred;
+		return mask;
 	}
 
 	public void setSubred(int subred) {
-		this.subred = subred;
+		this.mask = subred;
 	}
 	
 	

@@ -6,7 +6,7 @@ public class TablaObservable {
 	
 	SimpleStringProperty indice, subred, broadcast, rango;
 	
-	public TablaObservable(String index, String network, String broadcast, String range, String category) {
+	public TablaObservable(String index, String network, String broadcast, String range) {
 		super();
 		this.indice = new SimpleStringProperty(index);
 		this.subred = new SimpleStringProperty(network);

@@ -33,7 +33,7 @@
 								<Label layoutX="268.0" layoutY="161.0" text="Numero de bits para los hosts:" />
 								<Label layoutX="22.0" layoutY="193.0" text="Rango de direcciones:" />
 								<TextField fx:id="txtDireccionIP" cacheShape="false" layoutX="111.0" layoutY="22.0" prefHeight="26.0" prefWidth="178.0" />
-								<TextField fx:id="txtMascara" layoutX="398.0" layoutY="22.0" prefWidth="66.0" />
+								<TextField fx:id="txtMascara" layoutX="398.0" layoutY="22.0" onAction="#controlarCamposSubredes" prefWidth="66.0" />
 								<Label layoutX="18.0" layoutY="222.0" text="Cantidad de hosts:" />
 								<Label fx:id="lblDireccionRed" layoutX="158.0" layoutY="66.0" prefHeight="16.0" prefWidth="0.0" textAlignment="CENTER" />
 								<Label fx:id="lblMascara" layoutX="140.0" layoutY="96.0" />
@@ -72,10 +72,10 @@
 					<content>
 						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="303.0" prefWidth="645.0">
 							<children>
-								<Label layoutX="280.0" layoutY="14.0" text="Mascara [/x]:" />
-								<Button fx:id="btnCalcularSN" layoutX="567.0" layoutY="45.0" mnemonicParsing="false" text="Calcular" />
+								<Label layoutX="269.0" layoutY="14.0" text="Mascara [/x]:" />
+								<Button fx:id="btnCalcularSN" layoutX="567.0" layoutY="45.0" mnemonicParsing="false" onAction="#operarSubredes" text="Calcular" />
 								<Label layoutX="14.0" layoutY="14.0" text="Direccion IP:" />
-								<Label layoutX="420.0" layoutY="14.0" text="Cantidad de subredes:" />
+								<Label layoutX="409.0" layoutY="14.0" text="Cantidad de subredes:" />
 								<TableView fx:id="tvSubRedes" layoutX="14.0" layoutY="81.0" prefHeight="163.0" prefWidth="625.0">
 									<columns>
 										<TableColumn fx:id="tcNumero" prefWidth="34.0" text="#" />
@@ -86,9 +86,9 @@
 								</TableView>
 								<Label layoutX="288.0" layoutY="37.0" text="Broadcast:" />
 								<Label layoutX="14.0" layoutY="58.0" text="Cantidad de host por subred:" />
-								<TextField fx:id="txtDireccionSN" layoutX="103.0" layoutY="9.0" prefHeight="26.0" prefWidth="166.0" />
-								<TextField fx:id="txtMascaraSN" layoutX="376.0" layoutY="9.0" prefHeight="26.0" prefWidth="33.0" />
-								<ComboBox fx:id="cmbCantidad" layoutX="576.0" layoutY="9.0" prefHeight="26.0" prefWidth="54.0" />
+								<TextField fx:id="txtDireccionSN" layoutX="103.0" layoutY="9.0" prefHeight="26.0" prefWidth="160.0" />
+								<TextField fx:id="txtMascaraSN" layoutX="358.0" layoutY="9.0" prefHeight="26.0" prefWidth="42.0" />
+								<ComboBox fx:id="cmbCantidad" layoutX="563.0" layoutY="9.0" prefHeight="26.0" prefWidth="74.0" />
                         <Label layoutX="14.0" layoutY="37.0" text="Direccion de la red:" />
                         <Label fx:id="lblDireccionRedSN" layoutX="150.0" layoutY="37.0" />
                         <Label fx:id="lblDireccionBroadcastSN" layoutX="366.0" layoutY="37.0" />
