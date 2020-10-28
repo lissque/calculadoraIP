@@ -17,6 +17,29 @@ public class OperacionesRed {
 	}
 	
 	/**
+	 * Expresa la mascara de subred en formato decimal.
+	 */
+	public void expresarMascaraEnDecimal() {
+		red.setMascara(config);
+	}
+	
+	/**
+	 * Metodo que verifica si la direccion IP es una direccion de Red valida de acuerdo a la mascara
+	 * @param ipnet Direccion IP;
+	 * @return Valor de verdad de la funcion.
+	 */
+	public boolean esDireccionRed(int[] direccion) {
+		boolean ans = true;
+		setHost(direccion);
+		configNetwork();
+		calcularDireccionRed();
+		int[] aux = red.getRed();
+		for(int i = 0; i < 4; i++) 
+			ans = (aux[i] != direccion[i])?false:ans;
+		return ans;
+	}
+	
+	/**
 	 * Establece la configuración inicial de la red (NetId, HostId ) y la guarda
 	 * en el array config.
 	 */
@@ -78,11 +101,11 @@ public class OperacionesRed {
 		return ans;
 	}
 
-	public Red getNet() {
+	public Red getRed() {
 		return red;
 	}
 
-	public void setNet(Red net) {
+	public void setRed(Red net) {
 		this.red = net;
 	}
 
