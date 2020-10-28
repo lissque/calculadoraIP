@@ -32,10 +32,10 @@
 								<Label layoutX="23.0" layoutY="161.0" text="Numero de bits para la red:" />
 								<Label layoutX="268.0" layoutY="161.0" text="Numero de bits para los hosts:" />
 								<Label layoutX="22.0" layoutY="193.0" text="Rango de direcciones:" />
-								<TextField fx:id="txtDireccionIP" layoutX="111.0" layoutY="22.0" prefHeight="26.0" prefWidth="178.0" />
-								<TextField fx:id="txtMascara" layoutX="398.0" layoutY="22.0" prefWidth="66.0" />
-								<Label layoutX="24.0" layoutY="222.0" text="Cantidad de hosts:" />
-								<Label fx:id="lblDireccionRed" layoutX="158.0" layoutY="66.0" prefHeight="16.0" prefWidth="0.0" />
+								<TextField fx:id="txtDireccionIP" cacheShape="false" layoutX="111.0" layoutY="22.0" opacity="0.35" prefHeight="26.0" prefWidth="178.0" />
+								<TextField fx:id="txtMascara" layoutX="398.0" layoutY="22.0" opacity="0.35" prefWidth="66.0" />
+								<Label layoutX="18.0" layoutY="222.0" text="Cantidad de hosts:" />
+								<Label fx:id="lblDireccionRed" layoutX="158.0" layoutY="66.0" prefHeight="16.0" prefWidth="0.0" textAlignment="CENTER" />
 								<Label fx:id="lblMascara" layoutX="140.0" layoutY="96.0" />
 								<Label fx:id="lblBroadcast" layoutX="98.0" layoutY="129.0" />
 								<Label fx:id="lblBitsRed" layoutX="210.0" layoutY="161.0" />
@@ -57,8 +57,13 @@
 								<Label layoutX="35.0" layoutY="121.0" text="Broadcast:" />
 								<Label layoutX="35.0" layoutY="150.0" text="Cantidad de host permitidos:" />
 								<Label layoutX="35.0" layoutY="180.0" text="Rango de direcciones:" />
-								<TextField layoutX="61.0" layoutY="32.0" />
-								<TextField layoutX="353.0" layoutY="32.0" prefHeight="26.0" prefWidth="81.0" />
+								<TextField fx:id="txtIPHost" layoutX="61.0" layoutY="32.0" />
+								<TextField fx:id="txtMascaraHost" layoutX="353.0" layoutY="32.0" prefHeight="26.0" prefWidth="81.0" />
+                        <Label fx:id="lblDireccionRedHost" layoutX="172.0" layoutY="92.0" />
+                        <Label fx:id="lblDireccionBroadcastHost" layoutX="112.0" layoutY="121.0" />
+                        <Label fx:id="lblCantidadHostHost" layoutX="239.0" layoutY="150.0" />
+                        <Label fx:id="lblRangoHost" layoutX="189.0" layoutY="180.0" />
+                        <Button fx:id="btnCalcularHost" layoutX="494.0" layoutY="23.0" mnemonicParsing="false" onAction="#operarHostId" prefHeight="44.0" prefWidth="94.0" text="Calcular" />
 							</children>
 						</AnchorPane>
 					</content>

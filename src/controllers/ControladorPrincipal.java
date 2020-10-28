@@ -1,15 +1,22 @@
 package controllers;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import co.edu.uniquindio.redes.model.Network;
+import co.edu.uniquindio.redes.model.NetworkTable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import models.OperacionesRed;
+import observable.TablaObservable;
 
 public class ControladorPrincipal implements Initializable{
 	
@@ -23,6 +30,33 @@ public class ControladorPrincipal implements Initializable{
     
     @FXML
     private Button btnCalcularRed;
+    
+    @FXML
+    private TextField txtIPHost, txtMascaraHost;
+    
+    @FXML
+    private Label lblDireccionRedHost, lblDireccionBroadcastHost, lblCantidadHostHost, lblRangoHost;
+
+    @FXML
+    private Button btnCalcularHost;
+    
+    @FXML
+    private TextField txtDireccionSN, txtMascaraSN;
+    
+    @FXML
+    private TableView<?> tvSubRedes;
+
+    @FXML
+    private TableColumn<?, ?> tcNumero, tcIPSbubred, tcBroadcast, tcRango;
+
+    @FXML
+    private ComboBox<?> cmbCantidad;
+
+    @FXML
+    private Label lblDireccionRedSN, lblDireccionBroadcastSN, lblCantidadHostSN;
+    
+    @FXML
+    private Button btnCalcularSN;
     
     /**
 	 * Metodo que verifica si los cambios de valor en una entrada de informacion corresponde a una IP Y/O mascara valida.
@@ -101,7 +135,7 @@ public class ControladorPrincipal implements Initializable{
 			operaciones.calcularBroadcast();
 			int tempbroadcast[] = operaciones.getRed().getBroadcast();
 			values[1] = tempbroadcast[0]+"."+tempbroadcast[1]+"."+tempbroadcast[2]+"."+tempbroadcast[3];
-			values[2] = operaciones.calculateHostRange();
+			values[2] = operaciones.calcularRangoHost();
 			values[3] = "" +operaciones.contarHosts();
 			values[4] = "" + subnetmask;
 			values[5] = "" + (32 - subnetmask);
@@ -113,6 +147,103 @@ public class ControladorPrincipal implements Initializable{
 			values[2] = "No es una direccion de Red";
 		}
 		return values;
+	}
+	
+	/**
+	 * Metodo que verifica si los cambios de valor en una entrada de informacion corresponde a una IP Y/O mascara valida.
+	 * Si son direcciones y mascara valida, mostrara y establecera los valores de informacion de la Red. 
+	 */
+	@FXML
+	private void operarHostId(ActionEvent e) {
+		if(validar(""+txtIPHost.getText().toString(), ""+txtMascaraHost.getText().toString())) {
+			String[] temp = hacerOperacionesHost(""+txtIPHost.getText().toString(), ""+txtMascaraHost.getText().toString());
+			lblDireccionRedHost.setText(temp[0]);
+			lblDireccionBroadcastHost.setText(temp[1]);
+			lblRangoHost.setText(temp[2]);
+			lblCantidadHostHost.setText(temp[3]);
+		}
+		else {
+			lblDireccionRedHost.setText("");
+			lblDireccionBroadcastHost.setText("");
+			lblRangoHost.setText("");
+			lblCantidadHostHost.setText("");
+		}
+	}
+	
+	/**
+	 * Metodo que realiza los calculos de direccion una red basado en una direccion IP de la misma (host o direccion de red)
+	 * y la mascara de subred en formato simplificado.
+	 * @param ip direccion IP del Host o direccion de red.
+	 * @param mask Mascara de subred en formato simplificado.
+	 * @return Arreglo que contiene (Direccion de Red, Direccion de Broadcast, Rango de direcciones disponibles para los hosts
+	 * y Numero de host Asignables en la Red.
+	 */
+	public String[] hacerOperacionesHost(String ip , String mask ) {
+		String[] text = ip.split("\\.");
+		String[] values = new String[4];
+		int[] address = new int[4];
+		for( int i = 0; i < 4; i++ ) 
+			address[i] = Integer.parseInt(text[i]);	
+		int subnetmask = Integer.parseInt(mask);
+		operaciones.setHost(address);
+		operaciones.setSubred(subnetmask);
+		operaciones.configNetwork();
+		operaciones.calcularDireccionRed();	
+		int tempnet[] = operaciones.getRed().getRed();
+		values[0] = tempnet[0]+"."+tempnet[1]+"."+tempnet[2]+"."+tempnet[3];
+		operaciones.calcularBroadcast();
+		int tempbroadcast[] = operaciones.getRed().getBroadcast();
+		values[1] = tempbroadcast[0]+"."+tempbroadcast[1]+"."+tempbroadcast[2]+"."+tempbroadcast[3];
+		values[2] = operaciones.calcularRangoHost();
+		values[3] = "" + operaciones.contarHosts();
+
+		return values;
+	}
+	
+	/**
+	 * Metodo que realiza los calculos de Subred asociados a una Red basado en una direccion IP de la misma (host o direccion de red)
+	 * y la mascara de subred en formato simplificado.
+	 * @param ip Direccion de la IP perteneciente a esa Red.
+	 * @param mask Mascara de subred en formato simplificado.
+	 * @param bits Porcion de HostID que se destina para realizar Subnetting.
+	 * @return Lista que contiene la informacion de Red de cada una de las Subredes.
+	 */
+	public ArrayList<TablaObservable> hacerOperacionesSubred(String ip , String mask, String bits) {
+		ArrayList<TablaObservable> subnets = new ArrayList<>();
+		String[] text = ip.split("\\.");
+		int[] address = new int[4];
+		for( int i = 0; i < 4; i++ ) 
+			address[i] = Integer.parseInt(text[i]);	
+		int subnetmask = Integer.parseInt(mask);
+		int bit = Integer.parseInt(bits);
+		System.out.println(bits);
+		if(bit < 0)
+			return null;
+		
+		operaciones.setHost(address);
+		operaciones.setSubred(subnetmask);
+		operaciones.configNetwork();
+		operaciones.calcularDireccionRed();
+		operaciones.calcularBroadcast();
+		//operaciones.dosubnetting
+		ArrayList<Network> aux = operations.getSubnets();
+		for( Network n: aux ) {
+			String index = subnets.size()+"";
+			String network = "";
+			String broadcast = "";
+			for( int j = 0; j < 3; j++ ) {
+				network += n.getNetwork()[j] + ".";
+				broadcast += n.getBroadcast()[j] + ".";
+			}
+			int octectnetwork = n.getNetwork()[3]+1;
+			int octectbroadcast = n.getBroadcast()[3]-1;
+			String range = network + octectnetwork + " - " + broadcast + octectbroadcast;
+			network += n.getNetwork()[3];
+			broadcast += n.getBroadcast()[3];
+			String category = n.getCategory();
+			subnets.add(new NetworkTable(index, network, broadcast, range, category));
+		}
+		return subnets;
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class OperacionesRed {
 	 * Metodo que calcula el rango de direcciones IP asignables a los host en la Red.
 	 * @return String que contiene el rango de los host sin incluir la direccion de red ni de broadcast.
 	 */
-	public String calculateHostRange() {
+	public String calcularRangoHost() {
 		if(contarHosts()==0)
 			return "Not avalaible";
 		String begin = "", end = "", ans = "";
