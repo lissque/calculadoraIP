@@ -282,7 +282,7 @@ public class ControladorPrincipal implements Initializable{
 		operaciones.calcularBroadcast();
 		int tempbroadcast[] = operaciones.getRed().getBroadcast();
 		values[1] = tempbroadcast[0]+"."+tempbroadcast[1]+"."+tempbroadcast[2]+"."+tempbroadcast[3];
-		values[2] = "" + Math.pow(2.0, (8-bit));
+		values[2] = "" + Math.pow(2.0, (32-(bit+subnetmask)));
 
 		return values;
 	}

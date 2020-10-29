@@ -35,7 +35,7 @@
 								<TextField fx:id="txtDireccionIP" cacheShape="false" layoutX="111.0" layoutY="22.0" prefHeight="26.0" prefWidth="178.0" />
 								<TextField fx:id="txtMascara" layoutX="398.0" layoutY="22.0" onAction="#controlarCamposSubredes" prefWidth="66.0" />
 								<Label layoutX="18.0" layoutY="222.0" text="Cantidad de hosts:" />
-								<Label fx:id="lblDireccionRed" layoutX="158.0" layoutY="66.0" prefHeight="16.0" prefWidth="0.0" textAlignment="CENTER" />
+								<Label fx:id="lblDireccionRed" layoutX="158.0" layoutY="66.0" />
 								<Label fx:id="lblMascara" layoutX="140.0" layoutY="96.0" />
 								<Label fx:id="lblBroadcast" layoutX="98.0" layoutY="129.0" />
 								<Label fx:id="lblBitsRed" layoutX="210.0" layoutY="161.0" />
